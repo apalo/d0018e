@@ -1,0 +1,37 @@
+<html>
+<head></head>
+<body bgcolor="#f0f0f0">
+{% if category_list and product_list %}
+    {% for category in category_list %}
+        <p>
+        <h4>{{ category.name }}</h4>
+        <table 
+            frame="box" 
+            style="width:30%; 
+                   table-layout: fixed; 
+                   font-size: 12px;
+                   background-color: #ffffff">
+        <tr align="left">
+            <th>Name</th>
+            <th>Price</th>
+            <th>In stock</th>
+            <th>Rating</th>
+        </tr>
+        {% for product in product_list %}
+            {% ifequal category.id product.category_id %}
+                <tr>
+                    <td>{{product.name}}</td>
+                    <td>{{product.price}}</td>
+                    <td>{{product.stock_quantity}}</td>
+                    <td>{{product.rating}}</td>
+                </tr>
+            {% endifequal %}
+        {% endfor %}
+        </table>
+        </p>
+    {% endfor %}
+{% else %}
+    <p>One or more needed lists are not available.</p>
+{% endif %}
+</body>
+</html>
