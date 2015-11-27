@@ -1,13 +1,27 @@
+<!DOCTYPE html>
 <html>
-<head></head>
+<head>
+    <script>
+        function toggleShow(tableid) {
+            var table = document.getElementById(tableid);
+            if (table.style.display == 'none') {
+                table.style.display = '';
+            } else {
+                table.style.display = 'none';
+            }
+        }
+    </script>
+</head>
 <body bgcolor="#f0f0f0">
 {% if category_list and product_list %}
     {% for category in category_list %}
         <p>
-        <h4>{{ category.name }}</h4>
+        <a href="#" onClick="toggleShow({{category.id}})">{{ category.name }}</a>
         <table 
+            id="{{category.id}}" 
             frame="box" 
-            style="width:30%; 
+            style="display: none; 
+                   width:30%; 
                    table-layout: fixed; 
                    font-size: 12px;
                    background-color: #ffffff">
