@@ -43,7 +43,8 @@ python get-pip.py --user
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bash_profile
 
 # TODO: install and configure MySQL
-debconf-set-selections <<< 'mysql-server mysql-server/root_password password d0018epwd'
-debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password d0018epwd'
+sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password d0018epwd'
+sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password d0018epwd'
 sudo apt-get update
 sudo apt-get install -y mysql-server
+sudo apt-get install libmysqlclient-dev -y
