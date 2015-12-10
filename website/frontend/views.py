@@ -78,9 +78,9 @@ def reg_complete_view(request):
 
 def category_view(request, cat_name = None):
 	template = loader.get_template('frontend/category.html')
-	filtered_category = Categories.objects.filter(name=cat_name)
+	filtered_category = Category.objects.filter(name=cat_name)
 	category_id = filtered_category[0].id
-	product_list = [p for p in Products.objects.all() if p.category_id == category_id]
+	product_list = [p for p in Product.objects.all() if p.category_id == category_id]
 	context = RequestContext(request, {
 		'product_list': product_list,
 		'category_name': cat_name,

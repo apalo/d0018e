@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS `d0018e_ecommerce`.`categories` (
   `parent_id` INT NULL,
   `name` NVARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY (`name`),
   INDEX `categories_parent_id_idx` (`parent_id` ASC),
   CONSTRAINT `categories_parent_id`
     FOREIGN KEY (`parent_id`)

@@ -1,8 +1,8 @@
 from django.forms import ModelForm
-from .models import Customers
+from .models import Customer
 
 class RegistrationForm(ModelForm):
 
 	class Meta:
-		model = Customers
+		model = Customer
 		fields = ['email','name','password']
