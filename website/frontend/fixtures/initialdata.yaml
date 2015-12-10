@@ -1,0 +1,50 @@
+- model: frontend.category
+  pk: 1
+  fields:
+    name: "Books"
+- model: frontend.category
+  pk: 2
+  fields:
+    parent: 1
+    name: "Computer books"
+- model: frontend.category
+  pk: 3
+  fields:
+    name: "Computer Hardware"
+- model: frontend.category
+  pk: 4
+  fields:
+    parent: 3
+    name: "Laptops"
+- model: frontend.product
+  pk: 1
+  fields:
+    category: 2
+    name: Netty in Action
+    price: 350
+    stock_quantity: 10
+    rating: 0
+- model: frontend.product
+  pk: 2
+  fields:
+    category: 2
+    name: "Functional Programming in Scala"
+    price: 370
+    stock_quantity: 7
+    rating: 0
+- model: frontend.product
+  pk: 3
+  fields:
+    category: 4
+    name: "Macbook Pro"
+    price: 19999
+    stock_quantity: 3
+    rating: 0
+- model: frontend.product
+  pk: 4
+  fields:
+    category: 4
+    name: "Lenovo ThinkPad W550s"
+    price: 24000
+    stock_quantity: 5
+    rating: 0

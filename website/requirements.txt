@@ -1,2 +1,4 @@
 django
 MySQL-python
+PyYAML==3.11
+pytz

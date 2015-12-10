@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ product.name }}</title>
+</head>
+<body bgcolor="#f0f0f0">
+    <h1>{{ product.name }}</h1>
+    <table>
+        <tr>
+            <th>Price</th>
+            <td>{{ product.price }}</td>
+        </tr>
+        <tr>
+            <th>In Stock</th>
+            <td>{{ product.stock_quantity }}</td>
+        </tr>
+        <tr>
+            <th>Category</th>
+            <td>{{ product.category.name }}</td>
+        </tr>
+    </table>
+
+    <form action="{% url "products.buy" product_id=product.id %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Add to basket">
+    </form>
+</body>
+</html>

@@ -78,7 +78,10 @@ WSGI_APPLICATION = 'website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {'read_default_file': '/home/vagrant/d0018e/my.cnf',}, 
+        'OPTIONS': {'read_default_file': '/home/vagrant/d0018e/my.cnf',},
+        'TEST': {
+            'NAME': 'd0018e_tests'
+        } 
     }
 }
 
@@ -101,3 +104,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+MIGRATION_MODULES = {
+    'frontend': None,
+}

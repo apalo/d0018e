@@ -34,7 +34,7 @@
         {% for product in product_list %}
             {% ifequal category.id product.category_id %}
                 <tr>
-                    <td>{{product.name}}</td>
+                    <td><a href="{% url "products.details" product_id=product.id %}">{{ product.name }}</a></td>
                     <td>{{product.price}}</td>
                     <td>{{product.stock_quantity}}</td>
                     <td>{{product.rating}}</td>

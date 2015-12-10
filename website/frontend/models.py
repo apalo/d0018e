@@ -10,10 +10,11 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.utils import timezone
 
 
-class Categories(models.Model):
-    id = models.IntegerField(primary_key=True)
+class Category(models.Model):
+    id = models.AutoField(primary_key=True)
     parent = models.ForeignKey('self', blank=True, null=True)
     name = models.CharField(max_length=255)
 
@@ -21,55 +22,53 @@ class Categories(models.Model):
         return self.name
 
     class Meta:
-        managed = False
         db_table = 'categories'
 
 
-class Customers(models.Model):
-    id = models.IntegerField(primary_key=True)
+class Customer(models.Model):
+    id = models.AutoField(primary_key=True)
     email = models.CharField(unique=True, max_length=255)
     password = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        managed = False
         db_table = 'customers'
 
 
-class Orderitems(models.Model):
-    id = models.IntegerField(primary_key=True)
-    order = models.ForeignKey('Orders')
-    product = models.ForeignKey('Products')
-    quantity = models.IntegerField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+class OrderItem(models.Model):
+    id = models.AutoField(primary_key=True)
+    order = models.ForeignKey('Order')
+    product = models.ForeignKey('Product')
+    quantity = models.IntegerField(default=1)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
     class Meta:
-        managed = False
         db_table = 'orderitems'
 
 
-class Orders(models.Model):
-    id = models.IntegerField(primary_key=True)
-    customer = models.ForeignKey(Customers)
-    fulfilled = models.IntegerField()
-    created_at = models.DateTimeField()
+class Order(models.Model):
+    id = models.AutoField(primary_key=True)
+    customer = models.ForeignKey(Customer)
+    fulfilled = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
     fulfilled_at = models.DateTimeField(blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
     class Meta:
-        managed = False
         db_table = 'orders'
 
 
-class Products(models.Model):
-    id = models.IntegerField(primary_key=True)
-    category = models.ForeignKey(Categories, blank=True, null=True)
+class Product(models.Model):
+    id = models.AutoField(primary_key=True)
+    category = models.ForeignKey(Category, blank=True, null=True)
     name = models.CharField(max_length=255)
-    price = models.FloatField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     stock_quantity = models.IntegerField(blank=True, null=True)
     rating = models.FloatField()
 
@@ -77,18 +76,16 @@ class Products(models.Model):
         return self.name
 
     class Meta:
-        managed = False
         db_table = 'products'
 
 
-class Reviews(models.Model):
-    id = models.IntegerField(primary_key=True)
+class Review(models.Model):
+    id = models.AutoField(primary_key=True)
     comment = models.CharField(max_length=4096, blank=True, null=True)
     rating = models.IntegerField()
-    product = models.ForeignKey(Products)
-    customer = models.ForeignKey(Customers)
+    product = models.ForeignKey(Product)
+    customer = models.ForeignKey(Customer)
     created_at = models.DateTimeField()
 
     class Meta:
-        managed = False
         db_table = 'reviews'

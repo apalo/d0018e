@@ -18,7 +18,7 @@ USE `d0018e_ecommerce` ;
 DROP TABLE IF EXISTS `d0018e_ecommerce`.`categories` ;
 
 CREATE TABLE IF NOT EXISTS `d0018e_ecommerce`.`categories` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `parent_id` INT NULL,
   `name` NVARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`),
@@ -37,7 +37,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `d0018e_ecommerce`.`products` ;
 
 CREATE TABLE IF NOT EXISTS `d0018e_ecommerce`.`products` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `category_id` INT NULL,
   `name` NVARCHAR(255) NOT NULL,
   `price` DECIMAL(10,2) NOT NULL,
@@ -59,7 +59,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `d0018e_ecommerce`.`customers` ;
 
 CREATE TABLE IF NOT EXISTS `d0018e_ecommerce`.`customers` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `email` NVARCHAR(255) NOT NULL,
   `password` NVARCHAR(255) NOT NULL,
   `name` NVARCHAR(255) NOT NULL,
@@ -75,7 +75,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `d0018e_ecommerce`.`reviews` ;
 
 CREATE TABLE IF NOT EXISTS `d0018e_ecommerce`.`reviews` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `comment` NVARCHAR(4096) NULL,
   `rating` INT NOT NULL,
   `product_id` INT NOT NULL,
@@ -104,7 +104,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `d0018e_ecommerce`.`orders` ;
 
 CREATE TABLE IF NOT EXISTS `d0018e_ecommerce`.`orders` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `customer_id` INT NOT NULL,
   `fulfilled` TINYINT(1) NOT NULL,
   `created_at` DATETIME NOT NULL,
@@ -126,7 +126,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `d0018e_ecommerce`.`orderitems` ;
 
 CREATE TABLE IF NOT EXISTS `d0018e_ecommerce`.`orderitems` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `order_id` INT NOT NULL,
   `product_id` INT NOT NULL,
   `quantity` INT NOT NULL,
