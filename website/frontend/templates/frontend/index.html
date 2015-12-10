@@ -1,51 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <script>
-        function toggleShow(tableid) {
-            var table = document.getElementById(tableid);
-            if (table.style.display == 'none') {
-                table.style.display = '';
-            } else {
-                table.style.display = 'none';
-            }
-        }
-    </script>
-</head>
-<body bgcolor="#f0f0f0">
-{% if category_list and product_list %}
-    {% for category in category_list %}
-        <p>
-        <a href="#" onClick="toggleShow({{category.id}})">{{ category.name }}</a>
-        <table 
-            id="{{category.id}}" 
-            frame="box" 
-            style="display: none; 
-                   width:30%; 
-                   table-layout: fixed; 
-                   font-size: 12px;
-                   background-color: #ffffff">
-        <tr align="left">
-            <th>Name</th>
-            <th>Price</th>
-            <th>In stock</th>
-            <th>Rating</th>
-        </tr>
-        {% for product in product_list %}
-            {% ifequal category.id product.category_id %}
-                <tr>
-                    <td><a href="{% url "products.details" product_id=product.id %}">{{ product.name }}</a></td>
-                    <td>{{product.price}}</td>
-                    <td>{{product.stock_quantity}}</td>
-                    <td>{{product.rating}}</td>
-                </tr>
-            {% endifequal %}
-        {% endfor %}
-        </table>
-        </p>
-    {% endfor %}
-{% else %}
-    <p>One or more needed lists are not available.</p>
-{% endif %}
-</body>
-</html>
+{% extends "frontend/base.html" %}
+{% block title %} front page {% endblock %}
+{% block body %}
+	<p>Welcome to the shop!</p>
+{% endblock %}

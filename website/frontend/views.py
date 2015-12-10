@@ -1,7 +1,9 @@
-from django.shortcuts import render
-from django.http import HttpResponse, Http404
+from django.shortcuts import render, render_to_response, redirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext, loader
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from .models import Category, Product
+from .forms import RegistrationForm
 
 def index(request):
     category_list = Category.objects.all()
@@ -23,3 +25,65 @@ def product_details(request, product_id):
 def products_buy(request, product_id):
     # TODO: check if user is logged in, otherwise redirect back or something
     pass # TODO: implement adding to basket to the logged in user
+
+def login_view(request):
+	error_msg = ''
+	uname = ''
+	passw = ''
+	template = loader.get_template('frontend/login.html')
+	if request.POST:
+		# get login information from HTML form
+		uname = request.POST['username']
+		passw = request.POST['password']
+		user = authenticate(username=uname, password=passw)
+		if user is not None:
+			if user.is_active:
+				login(request, user)
+				return redirect('index')
+			else:
+				error_msg = "User is not active"
+		else:
+			error_msg = "Incorrect e-mail or password"
+	context = RequestContext(request, {'error' : error_msg})
+	return HttpResponse(template.render(context))
+
+
+def logout_view(request):
+	logout(request)
+	return redirect('index')
+
+
+def register_view(request):
+	template = loader.get_template('frontend/register.html')
+	if request.POST:
+		form = RegistrationForm(request.POST)
+		if form.is_valid():
+			user = get_user_model().objects.create_user(
+				email = request.POST['email'],
+				name = request.POST['name'],
+				password = request.POST['password']
+			)
+			return redirect('reg_complete')
+	else:
+		form = RegistrationForm()
+	context = RequestContext(request, {'form': form})
+	return HttpResponse(template.render(context))
+
+
+def reg_complete_view(request):
+	template = loader.get_template('frontend/reg_complete.html')
+	context = RequestContext(request)
+	return HttpResponse(template.render(context))
+
+
+def category_view(request, cat_name = None):
+	template = loader.get_template('frontend/category.html')
+	filtered_category = Categories.objects.filter(name=cat_name)
+	category_id = filtered_category[0].id
+	product_list = [p for p in Products.objects.all() if p.category_id == category_id]
+	context = RequestContext(request, {
+		'product_list': product_list,
+		'category_name': cat_name,
+		'category_id': category_id,
+	})
+	return HttpResponse(template.render(context))

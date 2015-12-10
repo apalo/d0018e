@@ -40,6 +40,8 @@ INSTALLED_APPS = (
     'frontend',
 )
 
+AUTH_USER_MODEL = 'frontend.Customers'
+
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

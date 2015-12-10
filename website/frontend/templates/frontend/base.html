@@ -1,0 +1,39 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="{% static 'frontend/style.css' %}">
+		<title>D0018E website: {% block title %}{% endblock %}</title>
+		{% block head %}{% endblock %}
+	</head>
+	<body>
+		<div id="top_area">
+			<h2>D0018E E-commerce</h2>
+		</div>
+		<div id="user_bar">
+			{% if user.is_authenticated %}
+				<a href="/logout">Logout</a>
+			{% else %}
+				<a href="/login">Login</a>|<a href="/register">Register</a>
+			{% endif %}
+		</div>
+		<div id="menu">
+			<a href="/">Home</a>
+			<p>
+			<a href="/category/laptops">Laptops</a><br>
+			<a href="/category/desktops">Desktops</a><br>
+			<a href="/category/monitors">Monitors</a><br>
+			<a href="/category/keyboards">Keyboards</a><br>
+			<a href="/category/mice">Mice</a><br>
+			<a href="/category/books">Books</a><br>
+		</div>
+		<div id="main_area">
+			{% block body %}{% endblock %}
+		</div>
+		<div id="right_bar">
+		</div>
+		<div id="bottom_area">
+			Group 27 - Andreas &amp; Mikael
+		</div>
+	</body>
+</html>
