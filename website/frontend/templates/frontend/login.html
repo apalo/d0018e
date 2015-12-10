@@ -1,0 +1,14 @@
+{% extends "frontend/base.html" %}
+{% block title %} login {% endblock %}
+{% block body %}
+	<div id="login">
+		<h3>Enter login informaton</h3>
+		<form action ="/login/" method="post">
+			{% csrf_token %}
+			<input type="text" name="username" placeholder="E-mail"><br>
+			<input type="password" name="password" placeholder="Password"><br>
+			<button type="submit">Login</button>
+		</form>
+		<p>{{error}}</p>
+	</div>
+{% endblock %}

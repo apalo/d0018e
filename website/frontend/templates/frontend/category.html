@@ -1,0 +1,27 @@
+{% extends "frontend/base.html" %}
+{% block title %} browse category {% endblock %}
+{% block body %}
+	<h3>Browsing {{category_name}}</h3>
+	{% if product_list %}
+		<table frame="box" style="width: 100%; table-layout: fixed; font-size: 12px">
+			<tr align="left">
+				<th>Name</th>
+				<th>Price</th>
+				<th>In stock</th>
+				<th>Rating</th>
+				<th></th>
+			</tr>
+		{% for product in product_list %}
+			<tr>
+				<td>{{product.name}}</td>
+				<td>{{product.price}}</td>
+				<td>{{product.stock_quantity}}</td>
+				<td>{{product.rating}}</td>
+				<td><a href="">buy</a></td>
+			</tr>
+		{% endfor %}
+		</table>
+	{% else %}
+		<p>No products in this category</p>
+	{% endif %}
+{% endblock %}

@@ -1,0 +1,73 @@
+
+body {
+	height: 400px;
+}
+
+a:link {
+	color: #ff6633;
+	text-decoration: none;
+}
+
+a:visited {
+	color: #ff6633;
+	text-decoration: none;
+}
+
+a:hover {
+	background-color: #ff6633;
+	color: #000000;
+	text-decoration: none;
+}
+
+a:active {
+	background-color: #ff6633;
+	color: #000000;
+	text-decoration: none;
+}
+
+#top_area {
+	background-color: #000000;
+	color: #ffffff;
+	text-align: center;	
+	height: 20px;
+}
+
+#user_bar {
+	background-color: #000000;
+	color: #ffffff;
+	text-align: right;
+}
+
+#menu {
+	background-color: #000000;
+	color: #ffffff;
+	height: 100%;
+	width: 100px;
+	text-align: center;
+	float: left;
+	padding: 10px;
+}
+
+#main_area {
+	width: 500px;
+	height: 100%;
+	float: left;
+	padding: 10px;
+}
+
+#right_bar {
+	background-color: #000000;
+	color: #ffffff;
+	width: 100px;
+	height: 100%;
+	float: right;
+	padding: 10px;
+}
+
+#bottom_area {
+	background-color: #000000;
+	color: #ffffff;
+	height: 25px;
+	text-align: center;
+	clear: both;
+}

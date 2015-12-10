@@ -1,0 +1,14 @@
+{% extends "frontend/base.html" %}
+{% block title %} registration {% endblock %}
+{% block body %}
+	<div id="register">
+		<h3>All fields are required to register an account</h3>
+		<form action="/register/" method="post">
+		{% csrf_token %}
+			<input type="text" name="email" placeholder="E-mail"><br>
+			<input type="text" name="name" placeholder="Name"><br>
+			<input type="password" name="password" placeholder="Password"><br>
+			<button type="submit">Register</button>
+		</form>
+	</div>
+{% endblock %}
