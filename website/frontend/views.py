@@ -5,6 +5,11 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from .models import Category, Product
 from .forms import RegistrationForm
 
+def category_reqctx(request):
+	return {
+		"global_categories": Category.objects.all()
+	}
+
 def index(request):
     category_list = Category.objects.all()
     product_list = Product.objects.all()
@@ -30,7 +35,6 @@ def login_view(request):
 	error_msg = ''
 	uname = ''
 	passw = ''
-	template = loader.get_template('frontend/login.html')
 	if request.POST:
 		# get login information from HTML form
 		uname = request.POST['username']
@@ -44,8 +48,7 @@ def login_view(request):
 				error_msg = "User is not active"
 		else:
 			error_msg = "Incorrect e-mail or password"
-	context = RequestContext(request, {'error' : error_msg})
-	return HttpResponse(template.render(context))
+	return render(request, "frontend/login.html", {'error': error_msg})
 
 
 def logout_view(request):
@@ -78,8 +81,8 @@ def reg_complete_view(request):
 
 def category_view(request, cat_name = None):
 	template = loader.get_template('frontend/category.html')
-	filtered_category = Category.objects.filter(name=cat_name)
-	category_id = filtered_category[0].id
+	filtered_category = Category.objects.get(name=cat_name)
+	category_id = filtered_category.id
 	product_list = [p for p in Product.objects.all() if p.category_id == category_id]
 	context = RequestContext(request, {
 		'product_list': product_list,

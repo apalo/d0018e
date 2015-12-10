@@ -1,9 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ product.name }}</title>
-</head>
-<body bgcolor="#f0f0f0">
+{% extends "frontend/base.html" %}
+{% block title %} front page {% endblock %}
+{% block body %}
     <h1>{{ product.name }}</h1>
     <table>
         <tr>
@@ -24,5 +21,4 @@
         {% csrf_token %}
         <input type="submit" value="Add to basket">
     </form>
-</body>
-</html>
+{% endblock %}

@@ -20,6 +20,11 @@ class CategoryTests(TestCase):
         category = Category.objects.create(name="Books")
         self.assertEquals(Category.objects.count() == 1, True)
 
+    def test_category_retreive(self):
+        Category.objects.create(name="Laptops")
+        category = Category.objects.get(name="Laptops")
+        self.assertEquals(category.name, "Laptops")
+
 class CustomerTests(TestCase):
     def test_customer_crated(self):
         Customer.objects.create(email="fake@ltu.local", password="bcrypt?", name="Fake User")
