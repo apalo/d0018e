@@ -13,6 +13,6 @@ VALUES ("Macbook Air 10-inch", 10995, 2, 4.9, 1),
        ("HP Gaming Deluxe", 13795, 1, 4.2, 2),
        ("BenQ 24-inch Full-HD", 1795, 2, 4.9, 3),
        ("Logitech generic keyboard", 195, 7, 4.3, 4),
-       ("Logotech gaming keyboard", 399, 5, 4.1, 4),
+       ("Logitech gaming keyboard", 399, 5, 4.1, 4),
        ("Logitech gaming mouse", 599, 1, 3.9, 5),
        ("Django for noobs", 299, 1, 5.0, 6);

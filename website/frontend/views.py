@@ -2,8 +2,9 @@ from django.shortcuts import render, render_to_response, redirect, Http404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext, loader
 from django.contrib.auth import authenticate, login, logout, get_user_model
-from .models import Category, Product
+from .models import Category, Product, Review, Customer
 from .forms import RegistrationForm
+from django.utils import timezone
 
 def category_reqctx(request):
 	return {
@@ -21,11 +22,12 @@ def index(request):
     return HttpResponse(template.render(context))
 
 def product_details(request, product_id):
+    reviews = Review.objects.filter(product__id = product_id)
     try:
         product = Product.objects.get(pk=product_id)
     except Product.DoesNotExist:
         raise Http404("Products doesn't exists")
-    return render(request, "frontend/product_details.html", {"product": product})
+    return render(request, "frontend/product_details.html", {"product": product, "reviews": reviews})
 
 def products_buy(request, product_id):
     # TODO: check if user is logged in, otherwise redirect back or something
@@ -90,3 +92,34 @@ def category_view(request, cat_name = None):
 		'category_id': category_id,
 	})
 	return HttpResponse(template.render(context))
+
+def review(request, product_id):
+    error = ""
+    if request.method == 'POST':
+        comment = request.POST['comment']
+        try:
+            rating = request.POST['rating']
+            product = Product.objects.get(pk=product_id)
+            customer = Customer.objects.get(pk=request.user.id)
+            review_obj = Review(
+                    comment=comment, 
+                    rating=rating,
+                    product=product,
+                    customer=customer,
+                    created_at=timezone.now())
+            review_obj.save()
+            return render(request, "frontend/review_complete.html")
+        except KeyError:
+            # exception if no 'rating' exists in POST
+            error = "You must provide a product rating."
+    try:
+        product = Product.objects.get(pk=product_id)
+    except Product.DoesNotExist:
+        raise Http404("Product does not exist")
+    # Each user may only review a product once
+    review_exists = False
+    if request.user.is_authenticated():
+        r = Review.objects.filter(customer=request.user.id).filter(product=product_id)
+        if r:
+            review_exists = True
+    return render(request, "frontend/review.html", {"product": product, "review_exists": review_exists, "error": error})
