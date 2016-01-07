@@ -1,0 +1,27 @@
+{% extends "frontend/base.html" %}
+{% block title %} review {% endblock %}
+{% block body %}
+    <font color="#ff0000">{{error}}</font> <br />
+    {% if user.is_authenticated %}
+        {% if review_exists %}
+            <h3>You have already reviewed this product.</h3>
+        {% else %}
+            <div id="review">
+                <h3>Share your opinion about {{ product.name }}</h3>
+                <form action="{% url "review" product_id=product.id %}" method="post" id="review_form">
+                    {% csrf_token %}
+                    Rating:
+                    <input type="radio" name="rating" id="1" value="1" /> <label for="1">1</label>
+                    <input type="radio" name="rating" id="2" value="2" /> <label for="2">2</label>
+                    <input type="radio" name="rating" id="3" value="3" /> <label for="3">3</label>
+                    <input type="radio" name="rating" id="4" value="4" /> <label for="4">4</label>
+                    <input type="radio" name="rating" id="5" value="5" /> <label for="5">5</label>
+                    <textarea name="comment" cols="70" rows="10" placeholder="Your comment..."></textarea>
+                    <button type="submit">Send review</button>
+                </form>
+            </div>
+        {% endif %}
+    {% else %}
+        <h3>You must be logged in to review products.</h3>
+    {% endif %}
+{% endblock %}

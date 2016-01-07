@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS `d0018e_ecommerce`.`customers` (
   `password` NVARCHAR(255) NOT NULL,
   `name` NVARCHAR(255) NOT NULL,
   `created_at` DATETIME NOT NULL,
+  `last_login` DATETIME,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `customers_email_udx` (`email` ASC))
 ENGINE = InnoDB;

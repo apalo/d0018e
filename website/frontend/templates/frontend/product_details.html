@@ -21,4 +21,12 @@
         {% csrf_token %}
         <input type="submit" value="Add to basket">
     </form>
+
+    <a href="{% url "review" product_id=product.id %}">Review this product</a> <br />
+    {% for review in reviews %}
+        <p>
+        {{review.customer.name}}'s rating: {{ review.rating }} <br />
+        {{ review.comment }}
+        </p>
+    {% endfor %}
 {% endblock %}
