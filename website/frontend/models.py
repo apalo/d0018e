@@ -63,11 +63,17 @@ class OrderItem(models.Model):
     product = models.ForeignKey('Product')
     quantity = models.IntegerField(default=1)
     created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(null=True)
+    updated_at = models.DateTimeField(default=timezone.now)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
     class Meta:
         db_table = 'orderitems'
+
+    @property
+    def total_price(self):
+        if self.order.fulfilled:
+            return self.price * self.quantity
+        return self.product.price * self.quantity
 
 
 class Order(models.Model):
@@ -81,6 +87,25 @@ class Order(models.Model):
     class Meta:
         db_table = 'orders'
 
+    @property
+    def total_price(self):
+        if self.fulfilled:
+            return self.price
+        _price = 0
+        for orderitem in self.orderitem_set.all():
+            _price += orderitem.total_price
+        return _price
+
+    @classmethod
+    def update_shopping_basket(cls, updated_qty, order):
+        for orderitem in order.orderitem_set.all():
+            qty = int(updated_qty.get("quantity-%s" % orderitem.product.id, 0))
+            if not qty or qty < 0:
+                orderitem.delete()
+                continue
+            orderitem.quantity = min(qty, orderitem.product.stock_quantity)
+            orderitem.save()
+
 
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
@@ -89,6 +114,10 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock_quantity = models.IntegerField(blank=True, null=True)
     rating = models.FloatField()
+
+    @property
+    def in_stock(self):
+        return self.stock_quantity > 0
 
     def __str__(self):
         return self.name

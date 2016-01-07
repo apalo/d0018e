@@ -17,7 +17,7 @@
 				<td>{{product.price}}</td>
 				<td>{{product.stock_quantity}}</td>
 				<td>{{product.rating}}</td>
-				<td><a href="">buy</a></td>
+				<td><a href="{% url "products.details" product_id=product.id %}">{% if product.in_stock %}Buy{% else %}View{% endif %}</a></td>
 			</tr>
 		{% endfor %}
 		</table>

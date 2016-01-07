@@ -12,7 +12,9 @@
 		</div>
 		<div id="user_bar">
 			{% if user.is_authenticated %}
-				<a href="/logout">Logout</a>
+				<a href="/logout">Logout</a> | 
+				<a href="/order/">Shopping basket</a> | 
+				<a href="/account/orders/">Orders</a>
 			{% else %}
 				<a href="/login">Login</a>|<a href="/register">Register</a>
 			{% endif %}

@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `d0018e_ecommerce`.`products` (
   `category_id` INT NULL,
   `name` NVARCHAR(255) NOT NULL,
   `price` DECIMAL(10,2) NOT NULL,
-  `stock_quantity` INT NULL,
+  `stock_quantity` INT UNSIGNED NOT NULL,
   `rating` DOUBLE NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `products_category_id_idx` (`category_id` ASC),
@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS `d0018e_ecommerce`.`customers` (
   `password` NVARCHAR(255) NOT NULL,
   `name` NVARCHAR(255) NOT NULL,
   `created_at` DATETIME NOT NULL,
+  `last_login` DATETIME NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `customers_email_udx` (`email` ASC))
 ENGINE = InnoDB;
@@ -130,7 +131,7 @@ CREATE TABLE IF NOT EXISTS `d0018e_ecommerce`.`orderitems` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `order_id` INT NOT NULL,
   `product_id` INT NOT NULL,
-  `quantity` INT NOT NULL,
+  `quantity` INT UNSIGNED NOT NULL,
   `price` DECIMAL(10,2) NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,

@@ -1,0 +1,340 @@
+diff --git a/schema.sql b/schema.sql
+index 1d44197..97f2f46 100644
+--- a/schema.sql
++++ b/schema.sql
+@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `d0018e_ecommerce`.`products` (
+   `category_id` INT NULL,
+   `name` NVARCHAR(255) NOT NULL,
+   `price` DECIMAL(10,2) NOT NULL,
+-  `stock_quantity` INT NULL,
++  `stock_quantity` INT UNSIGNED NOT NULL,
+   `rating` DOUBLE NOT NULL,
+   PRIMARY KEY (`id`),
+   INDEX `products_category_id_idx` (`category_id` ASC),
+@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS `d0018e_ecommerce`.`customers` (
+   `password` NVARCHAR(255) NOT NULL,
+   `name` NVARCHAR(255) NOT NULL,
+   `created_at` DATETIME NOT NULL,
++  `last_login` DATETIME NULL,
+   PRIMARY KEY (`id`),
+   UNIQUE INDEX `customers_email_udx` (`email` ASC))
+ ENGINE = InnoDB;
+@@ -130,7 +131,7 @@ CREATE TABLE IF NOT EXISTS `d0018e_ecommerce`.`orderitems` (
+   `id` INT NOT NULL AUTO_INCREMENT,
+   `order_id` INT NOT NULL,
+   `product_id` INT NOT NULL,
+-  `quantity` INT NOT NULL,
++  `quantity` INT UNSIGNED NOT NULL,
+   `price` DECIMAL(10,2) NULL,
+   `created_at` DATETIME NOT NULL,
+   `updated_at` DATETIME NOT NULL,
+diff --git a/website/frontend/models.py b/website/frontend/models.py
+index 58f8377..b14c5d2 100755
+--- a/website/frontend/models.py
++++ b/website/frontend/models.py
+@@ -63,12 +63,18 @@ class OrderItem(models.Model):
+     product = models.ForeignKey('Product')
+     quantity = models.IntegerField(default=1)
+     created_at = models.DateTimeField(default=timezone.now)
+-    updated_at = models.DateTimeField(null=True)
++    updated_at = models.DateTimeField(default=timezone.now)
+     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+ 
+     class Meta:
+         db_table = 'orderitems'
+ 
++    @property
++    def total_price(self):
++        if self.order.fulfilled:
++            return self.price * self.quantity
++        return self.product.price * self.quantity
++
+ 
+ class Order(models.Model):
+     id = models.AutoField(primary_key=True)
+@@ -81,6 +87,25 @@ class Order(models.Model):
+     class Meta:
+         db_table = 'orders'
+ 
++    @property
++    def total_price(self):
++        if self.fulfilled:
++            return self.price
++        _price = 0
++        for orderitem in self.orderitem_set.all():
++            _price += orderitem.total_price
++        return _price
++
++    @classmethod
++    def update_shopping_basket(cls, updated_qty, order):
++        for orderitem in order.orderitem_set.all():
++            qty = int(updated_qty.get("quantity-%s" % orderitem.product.id, 0))
++            if not qty or qty < 0:
++                orderitem.delete()
++                continue
++            orderitem.quantity = min(qty, orderitem.product.stock_quantity)
++            orderitem.save()
++
+ 
+ class Product(models.Model):
+     id = models.AutoField(primary_key=True)
+@@ -90,6 +115,10 @@ class Product(models.Model):
+     stock_quantity = models.IntegerField(blank=True, null=True)
+     rating = models.FloatField()
+ 
++    @property
++    def in_stock(self):
++        return self.stock_quantity > 0
++
+     def __str__(self):
+         return self.name
+ 
+diff --git a/website/frontend/templates/frontend/base.html b/website/frontend/templates/frontend/base.html
+index ff6ceb6..db64f07 100755
+--- a/website/frontend/templates/frontend/base.html
++++ b/website/frontend/templates/frontend/base.html
+@@ -12,7 +12,9 @@
+ 		</div>
+ 		<div id="user_bar">
+ 			{% if user.is_authenticated %}
+-				<a href="/logout">Logout</a>
++				<a href="/logout">Logout</a> | 
++				<a href="/order/">Shopping basket</a> | 
++				<a href="/account/orders/">Orders</a>
+ 			{% else %}
+ 				<a href="/login">Login</a>|<a href="/register">Register</a>
+ 			{% endif %}
+diff --git a/website/frontend/templates/frontend/category.html b/website/frontend/templates/frontend/category.html
+index cb7062a..fa015d1 100755
+--- a/website/frontend/templates/frontend/category.html
++++ b/website/frontend/templates/frontend/category.html
+@@ -17,7 +17,7 @@
+ 				<td>{{product.price}}</td>
+ 				<td>{{product.stock_quantity}}</td>
+ 				<td>{{product.rating}}</td>
+-				<td><a href="">buy</a></td>
++				<td><a href="{% url "products.details" product_id=product.id %}">{% if product.in_stock %}Buy{% else %}View{% endif %}</a></td>
+ 			</tr>
+ 		{% endfor %}
+ 		</table>
+diff --git a/website/frontend/templates/frontend/product_details.html b/website/frontend/templates/frontend/product_details.html
+index 1b20c71..1ada361 100644
+--- a/website/frontend/templates/frontend/product_details.html
++++ b/website/frontend/templates/frontend/product_details.html
+@@ -17,6 +17,12 @@
+         </tr>
+     </table>
+ 
++    {% if request.GET.maxqty %}
++    <div style="padding: 5px; background: red; color: #fff;">
++        Your shopping basket already contains all available stock quantity of this item!
++    </div>
++    {% endif %}
++
+     <form action="{% url "products.buy" product_id=product.id %}" method="POST">
+         {% csrf_token %}
+         <input type="submit" value="Add to basket">
+diff --git a/website/frontend/urls.py b/website/frontend/urls.py
+index 072a55f..40857db 100755
+--- a/website/frontend/urls.py
++++ b/website/frontend/urls.py
+@@ -10,4 +10,6 @@ urlpatterns = [
+     url(r'^category/(?P<cat_name>\w+)/$', views.category_view, name='category'),
+     url(r'^products/(?P<product_id>\d+)/$', views.product_details, name="products.details"),
+     url(r'^products/(?P<product_id>\d+)/add/$', views.products_buy, name="products.buy"),
++    url(r'^order/$', views.shopping_basket, name="shopping_basket"),
++    
+ ]
+\ No newline at end of file
+diff --git a/website/frontend/views.py b/website/frontend/views.py
+index d90c04f..cdc57f6 100755
+--- a/website/frontend/views.py
++++ b/website/frontend/views.py
+@@ -1,14 +1,16 @@
+-from django.shortcuts import render, render_to_response, redirect, Http404
++from django.shortcuts import render, render_to_response, redirect, Http404, redirect
+ from django.http import HttpResponse, HttpResponseRedirect
+ from django.template import RequestContext, loader
+ from django.contrib.auth import authenticate, login, logout, get_user_model
+-from .models import Category, Product
++from django.contrib.auth.decorators import login_required
++from django.db.models import F
++from .models import Category, Product, Order
+ from .forms import RegistrationForm
+ 
+ def category_reqctx(request):
+-	return {
+-		"global_categories": Category.objects.all()
+-	}
++    return {
++        "global_categories": Category.objects.all()
++    }
+ 
+ def index(request):
+     category_list = Category.objects.all()
+@@ -27,66 +29,86 @@ def product_details(request, product_id):
+         raise Http404("Products doesn't exists")
+     return render(request, "frontend/product_details.html", {"product": product})
+ 
++@login_required
+ def products_buy(request, product_id):
+-    # TODO: check if user is logged in, otherwise redirect back or something
+-    pass # TODO: implement adding to basket to the logged in user
++    order, _ = Order.objects.get_or_create(customer=request.user, fulfilled=False)
++    product = Product.objects.get(pk=product_id)
++    # if the product exists in the order, update with current value+1
++    orderitem, created = order.orderitem_set.update_or_create(product=product)
++    if not created:
++        if orderitem.quantity >= product.stock_quantity:
++            return redirect("/products/%s/?maxqty=1" % product.id)
++        orderitem.quantity = F("quantity")+1
++        orderitem.save()
++    return redirect("/order/")
++    
+ 
+ def login_view(request):
+-	error_msg = ''
+-	uname = ''
+-	passw = ''
+-	if request.POST:
+-		# get login information from HTML form
+-		uname = request.POST['username']
+-		passw = request.POST['password']
+-		user = authenticate(username=uname, password=passw)
+-		if user is not None:
+-			if user.is_active:
+-				login(request, user)
+-				return redirect('index')
+-			else:
+-				error_msg = "User is not active"
+-		else:
+-			error_msg = "Incorrect e-mail or password"
+-	return render(request, "frontend/login.html", {'error': error_msg})
++    error_msg = ''
++    uname = ''
++    passw = ''
++    if request.POST:
++        # get login information from HTML form
++        uname = request.POST['username']
++        passw = request.POST['password']
++        user = authenticate(username=uname, password=passw)
++        if user is not None:
++            if user.is_active:
++                login(request, user)
++                return redirect('index')
++            else:
++                error_msg = "User is not active"
++        else:
++            error_msg = "Incorrect e-mail or password"
++    return render(request, "frontend/login.html", {'error': error_msg})
+ 
+ 
++@login_required
+ def logout_view(request):
+-	logout(request)
+-	return redirect('index')
++    logout(request)
++    return redirect('index')
+ 
+ 
+ def register_view(request):
+-	template = loader.get_template('frontend/register.html')
+-	if request.POST:
+-		form = RegistrationForm(request.POST)
+-		if form.is_valid():
+-			user = get_user_model().objects.create_user(
+-				email = request.POST['email'],
+-				name = request.POST['name'],
+-				password = request.POST['password']
+-			)
+-			return redirect('reg_complete')
+-	else:
+-		form = RegistrationForm()
+-	context = RequestContext(request, {'form': form})
+-	return HttpResponse(template.render(context))
++    template = loader.get_template('frontend/register.html')
++    if request.POST:
++        form = RegistrationForm(request.POST)
++        if form.is_valid():
++            user = get_user_model().objects.create_user(
++                email = request.POST['email'],
++                name = request.POST['name'],
++                password = request.POST['password']
++            )
++            return redirect('reg_complete')
++    else:
++        form = RegistrationForm()
++    context = RequestContext(request, {'form': form})
++    return HttpResponse(template.render(context))
+ 
+ 
+ def reg_complete_view(request):
+-	template = loader.get_template('frontend/reg_complete.html')
+-	context = RequestContext(request)
+-	return HttpResponse(template.render(context))
++    template = loader.get_template('frontend/reg_complete.html')
++    context = RequestContext(request)
++    return HttpResponse(template.render(context))
+ 
+ 
+ def category_view(request, cat_name = None):
+-	template = loader.get_template('frontend/category.html')
+-	filtered_category = Category.objects.get(name=cat_name)
+-	category_id = filtered_category.id
+-	product_list = [p for p in Product.objects.all() if p.category_id == category_id]
+-	context = RequestContext(request, {
+-		'product_list': product_list,
+-		'category_name': cat_name,
+-		'category_id': category_id,
+-	})
+-	return HttpResponse(template.render(context))
++    template = loader.get_template('frontend/category.html')
++    filtered_category = Category.objects.get(name=cat_name)
++    category_id = filtered_category.id
++    product_list = [p for p in Product.objects.all() if p.category_id == category_id]
++    context = RequestContext(request, {
++        'product_list': product_list,
++        'category_name': cat_name,
++        'category_id': category_id,
++    })
++    return HttpResponse(template.render(context))
++
++# shopping basket
++def shopping_basket(request):
++    order = Order.objects.get(customer=request.user, fulfilled=False)
++    if request.method == "POST":
++        Order.update_shopping_basket(request.POST, order)
++        return redirect("/order/")
++
++    return render(request, "frontend/shopping_basket.html", {"order": order})
+\ No newline at end of file
+diff --git a/website/website/settings.py b/website/website/settings.py
+index 295be0c..2c61c03 100755
+--- a/website/website/settings.py
++++ b/website/website/settings.py
+@@ -34,7 +34,6 @@ INSTALLED_APPS = (
+     'django.contrib.admin',
+     'django.contrib.auth',
+     'django.contrib.contenttypes',
+-    'django.contrib.sessions',
+     'django.contrib.messages',
+     'django.contrib.staticfiles',
+     'frontend',
+@@ -53,6 +52,8 @@ MIDDLEWARE_CLASSES = (
+     'django.middleware.security.SecurityMiddleware',
+ )
+ 
++SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
++
+ ROOT_URLCONF = 'website.urls'
+ 
+ TEMPLATES = [
+@@ -102,6 +103,8 @@ USE_L10N = True
+ 
+ USE_TZ = True
+ 
++LOGIN_URL = "/login/"
++LOGOUT_URL = "/logout/"
+ 
+ # Static files (CSS, JavaScript, Images)
+ # https://docs.djangoproject.com/en/1.8/howto/static-files/

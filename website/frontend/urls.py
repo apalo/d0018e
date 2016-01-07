@@ -10,4 +10,6 @@ urlpatterns = [
     url(r'^category/(?P<cat_name>\w+)/$', views.category_view, name='category'),
     url(r'^products/(?P<product_id>\d+)/$', views.product_details, name="products.details"),
     url(r'^products/(?P<product_id>\d+)/add/$', views.products_buy, name="products.buy"),
+    url(r'^order/$', views.shopping_basket, name="shopping_basket"),
+    
 ]

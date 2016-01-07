@@ -17,6 +17,12 @@
         </tr>
     </table>
 
+    {% if request.GET.maxqty %}
+    <div style="padding: 5px; background: red; color: #fff;">
+        Your shopping basket already contains all available stock quantity of this item!
+    </div>
+    {% endif %}
+
     <form action="{% url "products.buy" product_id=product.id %}" method="POST">
         {% csrf_token %}
         <input type="submit" value="Add to basket">
