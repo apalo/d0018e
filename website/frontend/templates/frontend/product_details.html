@@ -15,7 +15,21 @@
             <th>Category</th>
             <td>{{ product.category.name }}</td>
         </tr>
+        <tr>
+            <th>Rating</th>
+            <td>{{ product.rating }}</td>
+        </tr>
     </table>
+
+    {% if request.GET.maxqty == "1" %}
+    <div style="padding: 5px; background: red; color: #fff;">
+        Your shopping basket already contains all available stock quantity of this item!
+    </div>
+    {% elif request.GET.maxqty == "0" %}
+    <div style="padding: 5px; background: red; color: #fff;">
+        No items in stock!
+    </div>
+    {% endif %}
 
     <form action="{% url "products.buy" product_id=product.id %}" method="POST">
         {% csrf_token %}

@@ -1,0 +1,12 @@
+{% extends "dashboard/base.html" %}
+{% block title %} Products {% endblock %}
+{% block body %}
+	<h3>Products</h3>
+	<ul>
+	{% for product in products %}
+		<li><a href="{% url "dashboard.products_edit" product_id=product.id %}">{{ product.name }}</a></li>
+	{% endfor %}
+	</ul>
+
+	<a href="/dashboard/products/new/">Add new product</a>
+{% endblock %}

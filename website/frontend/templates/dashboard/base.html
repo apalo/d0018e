@@ -1,0 +1,30 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="{% static 'frontend/style.css' %}">
+		<title>D0018E admin: {% block title %}{% endblock %}</title>
+		{% block head %}{% endblock %}
+	</head>
+	<body>
+		<div id="top_area" style="height: 40px;">
+			<h2 style="margin: 0; padding: 8px;">D0018E E-commerce Admin</h2>
+		</div>
+		<div id="user_bar">
+			
+		</div>
+		<div id="menu">
+			<a href="/dashboard/">Home</a><br>
+			<a href="/dashboard/products/">Products</a><br>
+			<a href="/dashboard/categories/">Categories</a>
+		</div>
+		<div id="main_area">
+			{% block body %}{% endblock %}
+		</div>
+		<div id="right_bar">
+		</div>
+		<div id="bottom_area">
+			Group 27 - Andreas &amp; Mikael
+		</div>
+	</body>
+</html>

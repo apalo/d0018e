@@ -2,8 +2,12 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
+
+
+class CheckoutNotCompleted(Exception):
+    pass
 
 
 class CustomUserManager(BaseUserManager):
@@ -63,11 +67,17 @@ class OrderItem(models.Model):
     product = models.ForeignKey('Product')
     quantity = models.IntegerField(default=1)
     created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(null=True)
+    updated_at = models.DateTimeField(default=timezone.now)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
     class Meta:
         db_table = 'orderitems'
+
+    @property
+    def total_price(self):
+        if self.order.fulfilled:
+            return self.price * self.quantity
+        return self.product.price * self.quantity
 
 
 class Order(models.Model):
@@ -81,6 +91,54 @@ class Order(models.Model):
     class Meta:
         db_table = 'orders'
 
+    @property
+    def total_price(self):
+        if self.fulfilled:
+            return self.price
+        _price = 0
+        for orderitem in self.orderitem_set.all():
+            _price += orderitem.total_price
+        return _price
+
+    @classmethod
+    def update_shopping_basket(cls, updated_qty, order):
+        for orderitem in order.orderitem_set.all():
+            qty = int(updated_qty.get("quantity-%s" % orderitem.product.id, 0))
+            if not qty or qty <= 0:
+                orderitem.delete()
+                continue
+            orderitem.quantity = min(qty, orderitem.product.stock_quantity)
+            orderitem.save()
+
+    @classmethod
+    def fulfil(cls, updated_qty, order):
+        # lock products
+        price = 0
+        valid = True
+        with transaction.atomic():
+            products = Product.objects.select_for_update().filter(id__in=map(lambda o: o.product_id, order.orderitem_set.all()))
+            orderitems = order.orderitem_set.all()
+            for orderitem in orderitems:
+                qty = int(updated_qty.get("quantity-%s" % orderitem.product.id, 0))
+                if not qty or qty <= 0 or qty > orderitem.product.stock_quantity:
+                    valid = False
+                    continue
+                orderitem.quantity = qty
+                orderitem.price = orderitem.product.price
+                orderitem.product.stock_quantity = models.F("stock_quantity") - orderitem.quantity
+                price += orderitem.price * orderitem.quantity
+
+            if valid:
+                for oi in orderitems:
+                    oi.product.save()
+                    oi.save()
+                order.price = price
+                order.fulfilled = True
+                order.fulfilled_at = datetime.now()
+                order.save()
+                return True
+            return False
+
 
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
@@ -89,6 +147,10 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock_quantity = models.IntegerField(blank=True, null=True)
     rating = models.FloatField()
+
+    @property
+    def in_stock(self):
+        return self.stock_quantity > 0
 
     def __str__(self):
         return self.name

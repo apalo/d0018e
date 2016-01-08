@@ -12,14 +12,15 @@
 		</div>
 		<div id="user_bar">
 			{% if user.is_authenticated %}
-				<a href="/logout">Logout</a>
+				<a href="/logout">Logout</a> | 
+				<a href="/order/">Shopping basket</a> | 
+				<a href="/account/orders/">Orders</a>
 			{% else %}
 				<a href="/login">Login</a>|<a href="/register">Register</a>
 			{% endif %}
 		</div>
 		<div id="menu">
 			<a href="/">Home</a>
-			<p>
 			{% for category in global_categories %}
 			<a href="{% url "category" cat_name=category.name %}" style="text-transform: capitalize;">{{ category.name }}</a><br>
 			{% endfor %}

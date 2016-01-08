@@ -1,0 +1,20 @@
+{% extends "frontend/base.html" %}
+{% block title %} review {% endblock %}
+{% block body %}
+    <h1>Orders</h1>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Fulfilled at</th>
+            <th>Price</th>
+        </tr>
+    {% for order in orders %}
+        <tr>
+            <td><a href="{% url "order.details" order_id=order.id %}">{{ order.id }}</a></td>
+            <td>{{ order.fulfilled_at }}</td>
+            <td>{{ order.price }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endblock %}
